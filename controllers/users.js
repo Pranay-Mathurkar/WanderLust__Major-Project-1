@@ -7,34 +7,32 @@ const User = require("../models/user")
 
 // sign up
 
- module.exports.signup =   async(req,res) => {
- 
-        try{
-            let {username, email ,password} =req.body;
-            const newUser= new User({email,username});
-            User.register(newUser,password);
-            const registeredUser = await User.register(newUser,password);
-           
-            req.login(registeredUser, (err) => {
-                if(err) {
-                    return next(err);
-                }
+module.exports.signup = async (req, res, next) => {
+    try {
+        const { username, email, password } = req.body;
+        const newUser = new User({ email, username });
 
-                req.flash("success", "Welcome to WANDERLUST!");
-                res.redirect("/listings");
+        const registeredUser = await User.register(newUser, password); // only once
 
+        req.login(registeredUser, (err) => {
+            if (err) return next(err);
 
-            });   // if user signup then it will also become login
+            req.flash("success", "Welcome to WANDERLUST!");
+            res.redirect("/listings");
+        });
 
-            
-
-        } catch(e){
-            req.flash("error",e.message);
-            res.redirect("/signup");
-
+    } catch (e) {
+        // If username already exists or other error
+        if (e.name === 'UserExistsError') {
+            req.flash("error", "Username already exists. Please log in or choose another.");
+        } else {
+            req.flash("error", e.message);
         }
-  
+
+        res.redirect("/signup");
+    }
 };
+
 
 // login
 
