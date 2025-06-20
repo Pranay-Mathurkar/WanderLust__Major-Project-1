@@ -126,6 +126,9 @@ app.use((req, res, next) => {
 
 // always keep flash upward from listing router
 
+app.get("/", (req, res) => {
+    res.redirect("/listings");
+});
 
 
 app.use("/listings",listingRouter);
